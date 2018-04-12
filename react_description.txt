@@ -1,0 +1,116 @@
+一、router
+1.安装路由插件
+npm install react-router-dom
+2.使用路由的页面：
+import React from 'react'
+import {
+  BrowserRouter as Router,
+Route,
+Link,HashRouter
+} from 'react-router-dom'
+
+ReactDOM.render(
+  (  
+    <HashRouter>  //使用必须一致
+        <div>  
+            <Route exact path="/" component={List}/>  
+            <Route path="/add" component={AddNew}/>
+        </div>  
+    </HashRouter>  
+),
+  document.getElementById('root')
+);
+
+3.安装跳转插件
+npm install --save history
+4.需要页面跳转的页面：
+import createHistory from 'history/createBrowserHistory'
+或者 
+import createHistory from 'history/createHashHistory'
+const history = createHistory()
+const location = history.location
+const unlisten = history.listen((location, action) => {
+  // location is an object like window.location
+  console.log(action, location.pathname, location.state)
+})
+history.push('/add')
+
+5.跳转传参：
+路由处：<Route path="/page2/:id" component={page2}/>
+跳转处：history.push(`/page2/${e.id}`)
+获取处：this.props.match.params.id
+
+
+二、redux
+1.安装
+npm install --save redux
+npm install --save react-redux
+2.applyMiddleware（）中间件
+是 Redux 的原生方法，作用是将所有中间件组成一个数组，依次执行
+在action的dispatch方法时执行applyMiddleware()执行，最后执行store.dispatch
+3.combineReducers 
+作用是，把一个由多个不同 reducer 函数作为 value 的 object，合并成一个最终的 reducer 函数，然后就可以对这个 reducer 调用 createStore。
+4.store:保存数据的地方，整个应用只有一个store
+redux-thunk ：reducer
+按需配置：
+var store = createStore();
+var store = createStore(
+    combineReducers(reducer),
+    applyMiddleware(thunk)
+);
+5.Action:发通知
+const action={type:'add',text:'learn redux'}
+const action=(text)=>{  //函数
+return {
+typr:'add',  //type必填
+value
+}
+}
+6.store.dispatch:分发action的唯一方法
+store.dispatch({
+type:'add',
+text:'learn redux'
+})
+store.dispatch(action('learn redux'))
+7.Reducer:接受action，然后给出新的state
+reducer接收action和当前的state作为参数，返回一个新的state
+const reducer=(state=0,action)=>{
+switch(action.type){
+case 'add':
+return state+1;
+case 'decrese':
+return state-1;
+default :
+return state;
+}
+}
+reducer方法在createStore时已经调用
+使用redux时直接调用action，程序会根据action中的type找方法调用
+
+映射：
+redux将state映射到组件的属性上
+const mapStateToProps = function(store) {
+  return {
+    planlist: store.planlist
+  };
+};
+redux将dispatch映射到组件的属性上
+方法一：
+import { bindActionCreators } from 'redux'
+const mapDispatchToProps=function(dispatch) {
+  return {
+    showDispatch: bindActionCreators(showDispatch, dispatch),
+    addPlanDispatch: bindActionCreators(addPlanDispatch, dispatch)
+  }
+}
+方法二：
+function mapDispatchToProps(dispatch){  
+    return{  
+        onButtonClick:()=>dispatch(buttonClickAction),  
+        onChangeText:()=>dispatch(changeTextAction)  
+    }  
+}  
+连接store和组件：
+App = connect(mapStateToProps, mapDispatchToProps)(App)
+
+
